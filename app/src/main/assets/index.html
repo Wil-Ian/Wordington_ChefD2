@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wordington</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<!-- screen 1 scan -->
+<div class="screen active" id="screen-scan">
+    <div class="header">
+        <h1>Chef D2</h1>
+        <p>Scan your ingredients, and we'll cook up the perfect recipe — just for you.</p>
+    </div>
+
+    <div class="camera-area" id="cameraArea">
+        <div class="icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+            </svg>
+        </div>
+        <span class="label">Tap to scan ingredients</span>
+        <span class="sublabel">Take a photo or upload from gallery</span>
+        <span class="preview-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:32px;height:32px;color:var(--primary)"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span style="font-size:0.8125rem;color:var(--text-muted)">Tap to change image</span>
+        </span>
+        <!-- Hidden file input for camera/gallery -->
+        <input type="file" id="imageInput" accept="image/*" capture="environment" style="display:none">
+    </div>
+
+    <div class="action-row">
+        <button class="btn btn-primary" id="btnScan">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Scan Ingredients
+        </button>
+        <button class="btn btn-outline" id="btnGallery">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Gallery
+        </button>
+    </div>
+</div>
+
+
+<!-- screen 2 ingredients -->
+<div class="screen" id="screen-detect">
+    <div class="top-nav">
+        <button class="back-btn" onclick="showScreen('screen-scan')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="title">Detected Ingredients</span>
+    </div>
+
+    <div class="detection-header">
+        <span class="badge badge-green" id="badgeCount">✓ 0 items found</span>
+        <span class="badge badge-orange" id="badgeReview" style="display:none">⚠ Review needed</span>
+    </div>
+
+    <div class="ingredient-grid" id="ingredientGrid">
+        <!-- Chips are injected by JS after scanning -->
+    </div>
+
+    <div class="add-ingredient-box" id="btnAddIngredient">
+        <div class="plus-icon">+</div>
+        <span class="text">Add missed ingredients manually</span>
+    </div>
+
+    <div class="detection-actions">
+        <button class="btn btn-outline" onclick="showScreen('screen-scan')">Back</button>
+        <button class="btn btn-primary" id="btnToPrefs">Continue →</button>
+    </div>
+</div>
+
+
+<!-- screen 3 preferences-->
+<div class="screen" id="screen-prefs">
+    <div class="top-nav">
+        <button class="back-btn" onclick="showScreen('screen-detect')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="title">Preferences</span>
+    </div>
+
+    <div class="pref-section">
+        <h3><span class="icon">🚫</span> Dietary Restrictions</h3>
+        <div class="pref-grid" id="dietaryGrid">
+            <div class="pref-chip" data-value="vegetarian">Vegetarian</div>
+            <div class="pref-chip" data-value="vegan">Vegan</div>
+            <div class="pref-chip" data-value="gluten-free">Gluten-Free</div>
+            <div class="pref-chip" data-value="halal">Halal</div>
+            <div class="pref-chip" data-value="keto">Keto</div>
+            <div class="pref-chip" data-value="low-sodium">Low-Sodium</div>
+            <div class="pref-chip" data-value="dairy-free">Dairy-Free</div>
+        </div>
+    </div>
+
+    <div class="pref-section">
+        <h3><span class="icon">⚠️</span> Allergies</h3>
+        <div class="pref-grid" id="allergyGrid">
+            <div class="pref-chip" data-value="peanuts"> Peanuts</div>
+            <div class="pref-chip" data-value="dairy">🥛 Dairy</div>
+            <div class="pref-chip" data-value="wheat">🌾 Wheat</div>
+            <div class="pref-chip" data-value="eggs">🥚 Eggs</div>
+            <div class="pref-chip" data-value="shellfish">🦐 Shellfish</div>
+            <div class="pref-chip" data-value="fish">🐟 Fish</div>
+            <div class="pref-chip" data-value="soy">🌱 Soy</div>
+        </div>
+    </div>
+
+    <div class="pref-section">
+        <h3><span class="icon">💰</span> Budget Range</h3>
+        <div class="budget-slider-wrap">
+            <div class="budget-labels">
+                <span>Low</span>
+                <span>Medium</span>
+                <span>High</span>
+            </div>
+            <input type="range" class="budget-slider" id="budgetSlider" min="50" max="1000" value="350">
+            <div class="budget-value" id="budgetValue">₱350</div>
+        </div>
+    </div>
+
+    <div class="pref-section">
+        <h3><span class="icon">🔄</span> Substitutions</h3>
+        <div class="toggle-row">
+            <div class="toggle-text">
+                <div class="toggle-label">Suggest substitutes</div>
+            </div>
+            <div class="toggle-switch on" data-key="suggestSubstitutes">
+                <div class="knob"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pref-actions">
+        <button class="btn btn-primary" style="width:100%" id="btnGenerate">
+            🧑‍🍳 Generate Recipe
+        </button>
+    </div>
+</div>
+
+<!-- screen 4 overview -->
+<div class="screen" id="screen-meal">
+    <div class="top-nav">
+        <button class="back-btn" onclick="showScreen('screen-prefs')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="title">Your Meal</span>
+    </div>
+
+    <div class="meal-overview">
+        <span class="meal-emoji">🍳</span>
+        <div class="overview-overlay">
+            <h2>Meal Name:</h2>
+            <div class="meal-meta">
+            <span class="meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Meal Time:</span>
+            </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="meal-tabs">
+        <button class="meal-tab active" onclick="switchMealTab(this,'tab-ingredients')">Ingredients</button>
+        <button class="meal-tab" onclick="switchMealTab(this,'tab-steps')">Instructions</button>
+        <button class="meal-tab" onclick="switchMealTab(this,'tab-subs')">Substitutes</button>
+    </div>
+
+    <div class="meal-actions">
+        <button class="btn btn-outline" style="flex:1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            Save Recipe
+        </button>
+        <button class="btn btn-primary" style="flex:1" id="btnNutrition">
+            📊 Nutrition Info
+        </button>
+    </div>
+</div>
+
+<!-- screen 5 nutrition-->
+<div class="screen" id="screen-nutrition">
+    <div class="top-nav">
+        <button class="back-btn" onclick="showScreen('screen-meal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="title">Nutrition Info</span>
+    </div>
+
+    <div class="nutrition-overview">
+        <div class="calorie-ring">
+            <svg viewBox="0 0 160 160">
+                <circle class="track" cx="80" cy="80" r="70"/>
+                <circle class="progress" id="calorieProgress" cx="80" cy="80" r="70" stroke-dasharray="440" stroke-dashoffset="440"/>
+            </svg>
+            <div class="calorie-center">
+                <span class="num" id="calorieNum">0</span>
+                <span class="lbl">calories</span>
+            </div>
+        </div>
+        <div class="meal-name-small" id="nutritionMealName">—</div>
+        <div class="servings" id="nutritionServings">—</div>
+    </div>
+
+    <div class="macro-grid">
+        <div class="macro-card carbs">
+            <div class="macro-icon">🍞</div>
+            <div class="macro-val"><span id="carbVal">0</span><span class="macro-unit">g</span></div>
+            <div class="macro-label">Carbs</div>
+        </div>
+        <div class="macro-card protein">
+            <div class="macro-icon">💪</div>
+            <div class="macro-val"><span id="proteinVal">0</span><span class="macro-unit">g</span></div>
+            <div class="macro-label">Protein</div>
+        </div>
+        <div class="macro-card fat">
+            <div class="macro-icon">🫒</div>
+            <div class="macro-val"><span id="fatVal">0</span><span class="macro-unit">g</span></div>
+            <div class="macro-label">Fat</div>
+        </div>
+    </div>
+
+    <div class="macro-bar-section">
+        <h3>Macro Breakdown</h3>
+        <div class="macro-bar">
+            <div class="seg-carbs" id="barCarbs" style="width:0%"></div>
+            <div class="seg-protein" id="barProtein" style="width:0%"></div>
+            <div class="seg-fat" id="barFat" style="width:0%"></div>
+        </div>
+        <div class="nutrition-info">
+            <span class="nutri-item"> Fiber <span id="fiber">0</span></span>
+            <span class="nutri-item"> Sodium <span id="sodium">0</span></span>
+            <span class="nutri-item"> Sugar <span id="sugar">0</span></span>
+            <span class="nutri-item"> Cholesterol <span id="cholesterol">0</span></span>
+        </div>
+    </div>
+
+    <div class="nutrition-actions">
+        <button class="btn btn-outline" style="flex:1" onclick="showScreen('screen-scan')">🏠 Home</button>
+        <button class="btn btn-primary" style="flex:1" id="btnShare">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share
+        </button>
+    </div>
+</div>
+
+<!-- Add Ingredient Modal -->
+
+<div class="modal-overlay" id="addModal">
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <h3>Add Ingredient</h3>
+        <div class="input-group">
+            <input type="text" id="newIngredientInput" placeholder="e.g. Chicken breast">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" id="modalCancel">Cancel</button>
+            <button class="btn btn-primary" id="modalAdd">Add</button>
+        </div>
+    </div>
+</div>
+
+<!-- navdots -->
+
+<div class="nav-dots" id="navDots">
+    <div class="nav-dot active" data-screen="screen-scan"></div>
+    <div class="nav-dot" data-screen="screen-detect"></div>
+    <div class="nav-dot" data-screen="screen-prefs"></div>
+    <div class="nav-dot" data-screen="screen-meal"></div>
+    <div class="nav-dot" data-screen="screen-nutrition"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
